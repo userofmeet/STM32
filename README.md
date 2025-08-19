@@ -3,7 +3,6 @@
 This repository contains multiple projects developed in **STM32CubeIDE** for the **STM32F410RB** microcontroller (part of the STM32F4 series).  
 It is meant to serve as a workspace where various applications and experiments will be added over time.
 
----
 
 ---
 
