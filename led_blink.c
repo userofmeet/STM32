@@ -1,4 +1,5 @@
 #include "main.h"
+#include <stdio.h>
 
 UART_HandleTypeDef huart2;
 
@@ -6,18 +7,29 @@ void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_USART2_UART_Init(void);
 
+// Retarget printf to USART2
+int _write(int file, char *ptr, int len)
+{
+    HAL_UART_Transmit(&huart2, (uint8_t *)ptr, len, HAL_MAX_DELAY);
+    return len;
+}
+
 int main(void)
 {
   HAL_Init();
   SystemClock_Config();
   MX_GPIO_Init();
   MX_USART2_UART_Init();
+
   while (1)
   {
-	  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, 1);
-	  HAL_Delay(1000);
-	  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, 0);
-	  HAL_Delay(1000);
+      HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET); // LED ON
+      printf("on\r\n");
+      HAL_Delay(2000);
+
+      HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET); // LED OFF
+      printf("off\r\n");
+      HAL_Delay(1000);
   }
 }
 
@@ -28,7 +40,7 @@ void SystemClock_Config(void)
 
   __HAL_RCC_PWR_CLK_ENABLE();
   __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
-  
+
   RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI;
   RCC_OscInitStruct.HSIState = RCC_HSI_ON;
   RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
@@ -100,11 +112,12 @@ void Error_Handler(void)
   __disable_irq();
   while (1)
   {
-    printf("Error occured!!");
+    printf("Error occurred!!\r\n");
   }
 }
+
 #ifdef USE_FULL_ASSERT
 void assert_failed(uint8_t *file, uint32_t line)
 {
 }
-#endif 
+#endif
